@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Math Quiz</title>
+  <link rel="icon" type="image/png" href="scale.png" />
+  <link rel="shortcut icon" href="scale.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Open Sans", sans-serif;
+      background: #D9ECF2;
+      margin: 0;
+      padding: 0;
+      color: #002D40;
+    }
+    header {
+      background: #002D40;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.2em;
+      font-family: "Space Mono", monospace;
+      letter-spacing: 1px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      padding: 20px;
+      margin-bottom: 40px;
+    }
+    .intro, .game-area, .result-area {
+      display: none;
+    }
+    .active { display: block; }
+    .intro p {
+      font-size: 1.2em;
+      text-align: left;
+      line-height: 1.6em;
+      color: #002D40;
+    }
+    .input-group {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .input-group input, .input-group select {
+      padding: 10px;
+      width: 220px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1.1em;
+      font-family: "Open Sans", sans-serif;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    .input-group input:focus, .input-group select:focus {
+      border-color: #1AA6B7;
+      outline: none;
+      box-shadow: 0 0 5px rgba(26,166,183,0.5);
+    }
+    .button {
+      background: #F56A79;
+      color: #fff;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.1em;
+      margin: 12px 4px;
+      display: inline-block;
+      font-family: "Space Mono", monospace;
+      transition: background 0.3s ease;
+      text-align:center;
+    }
+    .button:hover {
+      background: #FF414D;
+      color: #fff;
+    }
+    .timer, .scoreboard, .level-display {
+      font-size: 1.1em;
+      font-family:"Space Mono", monospace;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #002D40;
+    }
+    .level-display { margin-top: 10px; }
+    .question-count {
+      font-weight: bold;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+      text-align: center;
+      font-family:"Space Mono", monospace;
+    }
+    .question-text {
+      margin-bottom: 12px;
+      font-size: 1.3em;
+      text-align: center;
+      font-weight: bold;
+      font-family:"Space Mono", monospace;
+    }
+    .progress-container {
+      width: 100%;
+      background-color: #eee;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 16px;
+      margin: 12px auto;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #1AA6B7;
+      transition: width 0.4s ease;
+    }
+    .feedback {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 16px;
+    }
+    .feedback.correct {
+      background: #c9f8e5;
+      border: 1px solid #77e0b2;
+      color: #002D40;
+    }
+    .feedback.incorrect {
+      background: #ffe4e7;
+      border: 1px solid #ff9aa7;
+      color: #002D40;
+    }
+    .badge-area {
+      text-align: center;
+      font-family:"Space Mono", monospace;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-block;
+      margin: 5px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      background: #ccc;
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.95em;
+    }
+    .badge.starter { background: #8ec07c; }
+    .badge.bronze { background: #cd7f32; }
+    .badge.silver { background: #aaa9ad; }
+    .badge.gold { background: #ffd700; color: #002D40; }
+    .badge.platinum { background: #e5e4e2; color: #002D40; }
+    .badge.diamond { background: #b9f2ff; color: #002D40; }
+    .level-up-message {
+      background: #1AA6B7;
+      color: #fff;
+      padding: 10px;
+      margin: 10px auto;
+      width: fit-content;
+      border-radius: 8px;
+      font-family:"Space Mono", monospace;
+      font-weight: bold;
+      text-align: center;
+      animation: fadeInOut 3s forwards;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-10px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(10px); }
+    }
+    footer {
+      text-align: center;
+      color: #444;
+      margin: 20px 0;
+      font-size: 1em;
+      font-family:"Open Sans", sans-serif;
+    }
+    footer a {
+      color: #444;
+      text-decoration: none;
+    }
+    .mcq-options {
+      margin: 0 auto 20px auto;
+      text-align: left;
+      max-width: 350px;
+      font-size: 1.1em;
+      font-family: "Open Sans", sans-serif;
+    }
+    .mcq-options label {
+      display: block;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+    .numeric-answer {
+      display: block;
+      margin: 0 auto 20px auto;
+      text-align: center;
+    }
+    .numeric-answer input {
+      width: 120px;
+      padding: 10px;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    #explanation, #hintContainer, #hintInstructions {
+      display: none;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Math Quiz 1</h1>
+  </header>
+  <div class="container">
+    <div class="intro active" id="intro">
+      <h2 style="font-family:'Space Mono', monospace; font-size:1.6em; text-align:center;">Welcome!</h2>
+      <p>
+        This quiz includes 100 questions of varying difficulty. 
+        <br/>They are grouped into three levels: Easy, Medium, Hard.
+        <br/>You have 60 minutes total. The order of questions is shuffled for each student to discourage cheating.
+        <br/>Good luck!
+      </p>
+      <div class="input-group">
+        <input type="text" id="playerName" placeholder="Your Name"/>
+        <select id="division">
+          <option value="" disabled selected>Select Division</option>
+          <option value="A">Division A</option>
+          <option value="B">Division B</option>
+        </select>
+        <input type="number" id="rollNo" placeholder="Enter Roll Number"/>
+      </div>
+      <button class="button" onclick="startGame()">Start</button>
+      <div id="infoMsg" class="info-msg" style="font-size:1.1em; margin-top:10px; color:#FF414D; text-align:center; display:none;"></div>
+    </div>
+
+    <div class="game-area" id="game-area">
+      <div class="timer" id="timer">Time: 60:00</div>
+      <div class="scoreboard" id="scoreboard">Score: 0</div>
+      <div class="level-display" id="levelDisplay">Difficulty: Easy</div>
+      <div class="badge-area" id="badgeArea"></div>
+      <div id="levelUpMessage" class="level-up-message" style="display:none;"></div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="question-count" id="question-count"></div>
+      <div class="question-text" id="question-text"></div>
+
+      <div class="mcq-options" id="mcqOptions"></div>
+      <div class="numeric-answer" id="numericAnswer" style="display:none;">
+        <input type="number" step="0.01" id="numericInput" placeholder="Type number"/>
+      </div>
+
+      <div class="feedback" id="feedback" style="display:none;"></div>
+
+      <div style="text-align:center;">
+        <button class="button" id="actionBtn" onclick="actionButtonClicked()">Check</button>
+      </div>
+    </div>
+
+    <div class="result-area" id="result-area">
+      <h2 style="font-family:'Space Mono', monospace; font-size:1.8em; text-align:center;">Well Done!</h2>
+      <p id="final-message" style="font-size:1.2em; text-align:center;"></p>
+      <p id="final-score" style="font-size:1.2em; text-align:center;"></p>
+      <p style="text-align:center;">Thank you for playing! Keep practicing!</p>
+    </div>
+  </div>
+  <footer>
+    <p>All the best!</p>
+    <a href="https://www.flaticon.com/free-icons/ruler" title="ruler icons">Ruler icons by Freepik - Flaticon</a>
+  </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-RDLOoTlaio0VgtFh7eencMr9ekdFEEk",
+      authDomain: "test-app-1-6ade5.firebaseapp.com",
+      databaseURL: "https://test-app-1-6ade5-default-rtdb.firebaseio.com",
+      projectId: "test-app-1-6ade5",
+      storageBucket: "test-app-1-6ade5.firebasestorage.app",
+      messagingSenderId: "938447574937",
+      appId: "1:938447574937:web:65c1c53a12c665988b2508",
+      measurementId: "G-FKNLFZH4G9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    function shuffleMCQOptions(q) {
+      const correctText = q.options[q.answerIndex];
+      shuffleArray(q.options);
+      q.answerIndex = q.options.indexOf(correctText);
+    }
+
+    // -------- E A S Y  (Time) 30 -----------
+    const easyQuestions = [
+      { difficulty:"easy", questionType:"numeric",
+        question:"Fill in the blank: 1 hour = ___ minutes.",
+        answer:60
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Fill in the blank: 1 day = ___ hours.",
+        answer:24
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Write 7:15 on a clock in words.",
+        options:["Seven fifteen","Quarter to eight","Quarter past seven","Seven thirty"],
+        answerIndex:2
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"If the clock shows 4:30, is that called half past four or quarter past four?",
+        options:["Quarter to four","Half past four","Quarter past four","Four thirty"],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Convert 3 hours into minutes.",
+        answer:180
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Convert 150 minutes into hours and minutes.",
+        options:["1 hour 50 minutes","2 hours 30 minutes","2 hours 50 minutes","3 hours"],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"A train leaves at 9:00 a.m. and arrives at 2:00 p.m. How many hours is the journey?",
+        answer:5
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Ramesh does homework from 6:20 p.m. to 7:05 p.m. How many minutes did he spend?",
+        answer:45
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Write the following times using a.m. or p.m.:\n(a) 10:30 in the morning (b) 8:00 at night",
+        options:[
+          "10:30 p.m. and 8:00 a.m.",
+          "10:30 p.m. and 8:00 p.m.",
+          "10:30 a.m. and 8:00 p.m.",
+          "10:30 a.m. and 8:00 a.m."
+        ],
+        answerIndex:2
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Which is earlier: 2:15 p.m. or 2:45 p.m.?",
+        options:["2:45 p.m.","2:15 p.m."],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"If the clock shows 5:45, how many minutes are left until 6:00?",
+        answer:15
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Your school starts at 8:00 a.m. and ends at 2:00 p.m. How many hours in school?",
+        answer:6
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"The hour hand is between 2 and 3, and the minute hand at 6. What time is it?",
+        options:["2:06","2:15","3:30","2:30"],
+        answerIndex:3
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Circle the correct statement:",
+        options:[
+          "(a), (b), and (c)",
+          "All of these",
+          "Only (a) and (b)",
+          "Only (b) and (c)"
+        ],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"If the minute hand is on 9, how many minutes have passed in the hour?",
+        answer:45
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"You wake up at 7:15 a.m. and take 45 minutes to get ready. What time will you be ready?",
+        options:["7:45 a.m.","8:15 a.m.","8:00 a.m.","9:00 a.m."],
+        answerIndex:2
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"How many minutes are there in 3 hours?",
+        answer:180
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Arrange these times in ascending order: 2:40 p.m., 1:55 p.m., 2:15 p.m., 12:10 p.m.",
+        options:[
+          "1:55 p.m., 12:10 p.m., 2:15 p.m., 2:40 p.m.",
+          "2:15 p.m., 2:40 p.m., 12:10 p.m., 1:55 p.m.",
+          "12:10 p.m., 1:55 p.m., 2:15 p.m., 2:40 p.m.",
+          "12:10 p.m., 2:15 p.m., 1:55 p.m., 2:40 p.m."
+        ],
+        answerIndex:2
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Fill in the blank: 1 week = ___ days.",
+        answer:7
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"How many weeks are there in 21 days?",
+        answer:3
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"If today is Wednesday, what day will it be 3 days from now?",
+        options:["Thursday","Friday","Saturday","Sunday"],
+        answerIndex:2
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"How many days are there in February (non-leap year)?",
+        answer:28
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Rohit’s bus arrives at 7:10 a.m. He reached at 7:20 a.m. By how many minutes did he miss it?",
+        answer:10
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Neha watches a cartoon from 5:30 p.m. to 6:00 p.m. How long was it?",
+        answer:30
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Your bedtime is 9:00 p.m. You want to read 20 minutes before. When should you start?",
+        options:["8:30 p.m.","8:40 p.m.","8:45 p.m.","9:20 p.m."],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"Fill in the blank: 1 year = 12 ___.",
+        options:["weeks","months","days","hours"],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"If today is 23rd August, what date will it be after 7 days?",
+        options:["29th August","31st August","1st September","30th August"],
+        answerIndex:3
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"A flight departs at 10:30 a.m. and takes 2h 30m. At what time does it arrive?",
+        options:["12:30 p.m.","1:00 p.m.","1:30 p.m.","12:00 noon"],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"mcq",
+        question:"If it is 2:45 now, what time will it be 35 minutes later?",
+        options:["3:15","3:20","3:30","3:45"],
+        answerIndex:1
+      },
+      { difficulty:"easy", questionType:"numeric",
+        question:"Convert 5 days into hours.",
+        answer:120
+      }
+    ];
+
+    // -------- M E D I U M  (Money) 35 -----------
+    const mediumQuestions = [
+      { difficulty:"medium", questionType:"numeric",
+        question:"If you have 3 coins of ₹1 each, how many rupees in total?",
+        answer:3
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Write ₹45 in words.",
+        options:["Fifty-four rupees","Forty rupees","Seventy-five rupees","Forty-five rupees"],
+        answerIndex:3
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Convert 200 paise into rupees.",
+        answer:2
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Fill in the blank: 1 Rupee = ___ paise.",
+        answer:100
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Rina has ₹20 and buys a pencil for ₹7. How much is left?",
+        answer:13
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Circle the greater amount: ₹56 or ₹65?",
+        options:["₹65","₹56"],
+        answerIndex:0
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"You have ₹100 and a toy costs ₹75. How much change do you get?",
+        answer:25
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"If a notebook costs ₹18, how many can you buy with ₹54?",
+        answer:3
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"How much money is 5 coins of ₹2 each?",
+        answer:10
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Ravi buys chocolates for ₹15 and chips for ₹10. Total spent?",
+        answer:25
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Rhea has ₹25, Rohan has ₹35, Priya has ₹40. Who has the most?",
+        options:["Rhea","Priya","Rohan","All same"],
+        answerIndex:1
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"You have ₹50. You spend ₹20 on a drink and ₹15 on a snack. How much left?",
+        answer:15
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Candy costs ₹2. How many candies can you buy with ₹20?",
+        answer:10
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Which two different combinations each total ₹10?",
+        options:[
+          "2 coins of ₹10, and 5 coins of ₹2",
+          "10 coins of 50 paise, and 20 coins of 50 paise",
+          "None are correct",
+          "1 coin of ₹5 + 5 coins of ₹1, and 10 coins of ₹1"
+        ],
+        answerIndex:3
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"A book costs ₹35, a pen ₹10, and pencil ₹5. How much for all three?",
+        answer:50
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"If you have 2 notes of ₹10 and 2 notes of ₹20, total money?",
+        answer:60
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Convert ₹5 and 50 paise into paise.",
+        answer:550
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"A burger is ₹25, juice is ₹12. You have ₹50. Enough? If yes, change left?",
+        options:[
+          "Yes, ₹13 left",
+          "Yes, ₹0 left",
+          "No, short by ₹10",
+          "Yes, ₹25 left"
+        ],
+        answerIndex:0
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Aman has ₹100. Buys T-shirt ₹75 + cap ₹15. Money left?",
+        answer:10
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Arrange in ascending order: ₹25, ₹52, ₹6, ₹16.",
+        options:[
+          "₹25, ₹16, ₹6, ₹52",
+          "₹16, ₹6, ₹25, ₹52",
+          "₹6, ₹16, ₹25, ₹52",
+          "₹25, ₹6, ₹52, ₹16"
+        ],
+        answerIndex:2
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"How many ₹5 coins needed to make ₹50?",
+        answer:10
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Fill in the blanks: ₹7.75 = ₹___ and ___ paise.",
+        options:["₹7 and 25 paise","₹7 and 75 paise","₹8 and 25 paise","₹8 and 75 paise"],
+        answerIndex:1
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Soham saves ₹5/day for 10 days. How much total?",
+        answer:50
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"A toy car costs ₹99. You have a ₹100 note. How much change?",
+        answer:1
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"You must pay ₹36 but only have ₹10 coins. How many coins are required?",
+        answer:4
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Rani wants a balloon for ₹8. She has 4 coins of ₹2. Enough money?",
+        options:["No","Yes"],
+        answerIndex:1
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Convert ₹12.25 into paise.",
+        answer:1225
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"Which is more: 750 paise or ₹7.50?",
+        options:[
+          "750 paise is more",
+          "₹7.50 is more",
+          "They are the same",
+          "750 paise is less"
+        ],
+        answerIndex:2
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Raj has ₹23, Kavya ₹18, Mahi ₹27. Total together?",
+        answer:68
+      },
+      { difficulty:"medium", questionType:"mcq",
+        question:"You have ₹10, ₹20, and ₹50 notes. Two ways to make ₹70 are:",
+        options:[
+          "(1) ₹50 + ₹50; (2) ₹10 + ₹20",
+          "(1) ₹20 + ₹20 + ₹10; (2) ₹30 + ₹40",
+          "(1) ₹50 + ₹20; (2) Three ₹20 + one ₹10",
+          "None are correct"
+        ],
+        answerIndex:2
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Fill in the blank: ₹3 and 75 paise = ___ paise.",
+        answer:375
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"Tina has ₹25. A storybook costs ₹50. How many more rupees needed?",
+        answer:25
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"A pen is ₹7.50. You pay ₹10. How much change back?",
+        answer:2.50
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"If a bag costs ₹60, how many bags can you buy with ₹300?",
+        answer:5
+      },
+      { difficulty:"medium", questionType:"numeric",
+        question:"You have 2 coins of ₹5 and 5 coins of ₹1. Total money?",
+        answer:15
+      }
+    ];
+
+    // -------- H A R D  (Measurement) 35 -----------
+    const hardQuestions = [
+      { difficulty:"hard", questionType:"numeric",
+        question:"Fill in the blank: 1 meter = ___ centimeters.",
+        answer:100
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Fill in the blank: 1 kilogram = ___ grams.",
+        answer:1000
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Fill in the blank: 1 liter = ___ milliliters.",
+        answer:1000
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 2 meters into centimeters.",
+        answer:200
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 300 centimeters into meters.",
+        answer:3
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"A pencil is 12 cm, pen is 15 cm. Which is longer and by how many centimeters?",
+        options:[
+          "The pencil is longer by 3 cm",
+          "The pen is longer by 3 cm",
+          "They are the same length",
+          "The pen is longer by 5 cm"
+        ],
+        answerIndex:1
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"If 1 banana ~100 g, how many bananas make 1 kg?",
+        answer:10
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 2 liters into milliliters.",
+        answer:2000
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Sia has 500 ml of juice, pours out 200 ml. How much left?",
+        answer:300
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"Which is heavier: 1 kg of cotton or 1 kg of iron?",
+        options:[
+          "1 kg cotton",
+          "1 kg iron",
+          "They weigh the same",
+          "None"
+        ],
+        answerIndex:2
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"A jug holds 2 L water. Another jug holds 1 L 500 ml. Which is more?",
+        options:[
+          "Jug 2: 1 liter 500 ml is more",
+          "They hold the same",
+          "None",
+          "Jug 1: 2 liters is more"
+        ],
+        answerIndex:3
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 2.5 kg into grams.",
+        answer:2500
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Raj walked 1 km in the morning + 500 m in evening. Total in meters?",
+        answer:1500
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"Which unit would you use to measure the length of your classroom: centimeters or meters?",
+        options:["meters","centimeters"],
+        answerIndex:0
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"Which unit would you use to measure the weight of a watermelon: grams or kilograms?",
+        options:["kilograms","grams"],
+        answerIndex:0
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"Which unit would you use to measure the capacity of a bucket: liters or milliliters?",
+        options:["liters","milliliters"],
+        answerIndex:0
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Meena needs 2 L milk but has a 1 L container. How many fills to get 2 L?",
+        answer:2
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 2000 ml into liters.",
+        answer:2
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Fill in the blank: 1 km = ___ meters.",
+        answer:1000
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A ribbon is 1 m 20 cm long. Convert this length into centimeters.",
+        answer:120
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"A sack of rice weighs 5 kg. Another sack weighs 3 kg 500 g. Which sack is heavier and by how much?",
+        options:[
+          "Second sack heavier by 1 kg 500 g",
+          "Both same weight",
+          "First sack heavier by 1 kg 500 g",
+          "None"
+        ],
+        answerIndex:2
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A water tank has a capacity of 5 liters. If you fill 2 liters, how much more water can the tank hold?",
+        answer:3
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"The distance from your home to the market is 2 km. Convert this distance into meters.",
+        answer:2000
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A chocolate bar weighs 50 g. How many such bars weigh 1 kg?",
+        answer:20
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"If 1 packet of sugar weighs 2 kg, how many packets can be made from 10 kg of sugar?",
+        answer:5
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A bucket can hold 10 liters of water. How many liters will 3 such buckets hold?",
+        answer:30
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"One rope is 3 m 50 cm long. Another rope is 2 m 70 cm long. Find the total length of both ropes in cm.",
+        answer:620
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 7000 g into kilograms.",
+        answer:7
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A small bottle holds 250 ml of water. How many such bottles can be filled from a 2-liter jug?",
+        answer:8
+      },
+      { difficulty:"hard", questionType:"mcq",
+        question:"Which is longer: 120 cm or 1 m 10 cm?",
+        options:["1 m 10 cm","120 cm","They are the same","Cannot compare"],
+        answerIndex:1
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Arjun needs 2 kg of flour to bake a cake. He has 1 kg. How much more flour does he need?",
+        answer:1
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"Convert 3 liters 250 ml into milliliters.",
+        answer:3250
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A rod is 2 m 25 cm long. How many centimeters is that in total?",
+        answer:225
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A watermelon weighs 2 kg 750 g. Convert this into grams.",
+        answer:2750
+      },
+      { difficulty:"hard", questionType:"numeric",
+        question:"A tank can hold 10 liters of water. If it currently has 8 liters, how much more water can you add to fill it?",
+        answer:2
+      }
+    ];
+
+    // Shuffle arrays
+    shuffleArray(easyQuestions);
+    shuffleArray(mediumQuestions);
+    shuffleArray(hardQuestions);
+
+    easyQuestions.forEach(q => { if (q.questionType === "mcq") shuffleMCQOptions(q); });
+    mediumQuestions.forEach(q => { if (q.questionType === "mcq") shuffleMCQOptions(q); });
+    hardQuestions.forEach(q => { if (q.questionType === "mcq") shuffleMCQOptions(q); });
+
+    const questions = [...easyQuestions, ...mediumQuestions, ...hardQuestions];
+    const totalQuestions = questions.length;
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userKey = "";
+    let playerName = "";
+    let division = "";
+    let rollNo = "";
+    let totalTime = 60 * 60; 
+    let timerInterval = null;
+    let state = "check";
+
+    function showInfo(msg) {
+      const infoEl = document.getElementById("infoMsg");
+      infoEl.textContent = msg;
+      infoEl.style.display = "block";
+    }
+    function hideInfo() {
+      const infoEl = document.getElementById("infoMsg");
+      infoEl.textContent = "";
+      infoEl.style.display = "none";
+    }
+
+    function startGame() {
+      hideInfo();
+      const nameInput = document.getElementById("playerName").value.trim();
+      const divisionVal = document.getElementById("division").value;
+      const rollNoVal = document.getElementById("rollNo").value.trim();
+      if (!nameInput) {
+        showInfo("Please enter your name.");
+        return;
+      }
+      if (!divisionVal) {
+        showInfo("Please select your division.");
+        return;
+      }
+      if (!rollNoVal) {
+        showInfo("Please enter your roll number.");
+        return;
+      }
+      playerName = nameInput;
+      division = divisionVal;
+      rollNo = rollNoVal;
+      userKey = `${division}_${rollNo}`;
+
+      document.getElementById("intro").classList.remove("active");
+      document.getElementById("game-area").classList.add("active");
+
+      showQuestion();
+      startTimer();
+
+      const initialData = {
+        name: playerName,
+        division: division,
+        rollNo: rollNo,
+        score: 0,
+        questionsCompleted: 0,
+        quiz: "test1",
+        timeStarted: new Date().toISOString(),
+        lastAnswered: new Date().toISOString(),
+        totalQuestions: totalQuestions
+      };
+      database.ref(`results/${userKey}`).set(initialData);
+    }
+
+    function showQuestion() {
+      if (currentQuestionIndex >= totalQuestions) {
+        endGame();
+        return;
+      }
+      const qObj = questions[currentQuestionIndex];
+      const questionCountEl = document.getElementById("question-count");
+      const questionTextEl = document.getElementById("question-text");
+      const mcqOptionsEl = document.getElementById("mcqOptions");
+      const numericAnswerEl = document.getElementById("numericAnswer");
+      const numericInputEl = document.getElementById("numericInput");
+      const feedbackEl = document.getElementById("feedback");
+      const actionBtnEl = document.getElementById("actionBtn");
+
+      questionCountEl.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+      questionTextEl.textContent = qObj.question;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      actionBtnEl.textContent = "Check";
+      state = "check";
+
+      const levelDisplay = document.getElementById("levelDisplay");
+      levelDisplay.textContent = "Difficulty: " + (qObj.difficulty || "???");
+
+      mcqOptionsEl.style.display = "none";
+      numericAnswerEl.style.display = "none";
+      mcqOptionsEl.innerHTML = "";
+      numericInputEl.value = "";
+
+      if (qObj.questionType === "mcq") {
+        mcqOptionsEl.style.display = "block";
+        qObj.options.forEach((opt, idx) => {
+          mcqOptionsEl.innerHTML += `
+            <label>
+              <input type="radio" name="mcqOption" value="${idx}"/>
+              ${opt}
+            </label>
+          `;
+        });
+      } else {
+        numericAnswerEl.style.display = "block";
+      }
+
+      updateProgressBar();
+    }
+
+    function actionButtonClicked() {
+      if (state === "check") {
+        checkAnswer();
+      } else {
+        nextQuestion();
+      }
+    }
+
+    function checkAnswer() {
+      const qObj = questions[currentQuestionIndex];
+      const feedbackEl = document.getElementById("feedback");
+      feedbackEl.style.display = "block";
+      feedbackEl.classList.remove("correct","incorrect");
+
+      let correct = false;
+
+      if (qObj.questionType === "mcq") {
+        const selectedRadio = document.querySelector('input[name="mcqOption"]:checked');
+        if (!selectedRadio) {
+          feedbackEl.textContent = "Please select an option!";
+          feedbackEl.classList.add("incorrect");
+          return;
+        }
+        const selectedValue = parseInt(selectedRadio.value, 10);
+        if (selectedValue === qObj.answerIndex) {
+          correct = true;
+        }
+      } else {
+        const userValStr = document.getElementById("numericInput").value.trim();
+        if (!userValStr) {
+          feedbackEl.textContent = "Please enter a number!";
+          feedbackEl.classList.add("incorrect");
+          return;
+        }
+        const numericVal = parseFloat(userValStr);
+        const correctVal = parseFloat(qObj.answer);
+        if (Math.abs(numericVal - correctVal) < 0.01) {
+          correct = true;
+        }
+      }
+
+      if (correct) {
+        feedbackEl.textContent = "Correct!";
+        feedbackEl.classList.add("correct");
+        score += 10;
+      } else {
+        feedbackEl.textContent = "Incorrect!";
+        feedbackEl.classList.add("incorrect");
+      }
+
+      document.getElementById("scoreboard").textContent = "Score: " + score;
+      checkForBadges();
+      document.getElementById("actionBtn").textContent = "Next";
+      state = "next";
+
+      const questionsCompleted = currentQuestionIndex + 1;
+      const timestamp = new Date().toISOString();
+      database.ref(`results/${userKey}`).update({
+        score: score,
+        questionsCompleted: questionsCompleted,
+        lastAnswered: timestamp
+      });
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex >= totalQuestions) {
+        endGame();
+      } else {
+        showQuestion();
+      }
+    }
+
+    function startTimer() {
+      const timerEl = document.getElementById("timer");
+      timerInterval = setInterval(() => {
+        if (totalTime <= 0) {
+          clearInterval(timerInterval);
+          endGame();
+          return;
+        }
+        totalTime--;
+        let minutes = Math.floor(totalTime / 60);
+        let seconds = totalTime % 60;
+        if (seconds < 10) seconds = "0" + seconds;
+        timerEl.textContent = "Time: " + minutes + ":" + seconds;
+      }, 1000);
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      document.getElementById("game-area").classList.remove("active");
+      document.getElementById("result-area").classList.add("active");
+      document.getElementById("final-message").textContent =
+        "Great job, " + playerName + "!";
+      document.getElementById("final-score").textContent =
+        "Your Score: " + score + " out of " + (totalQuestions * 10);
+
+      const timestamp = new Date().toISOString();
+      database.ref(`results/${userKey}`).update({
+        finalScore: score,
+        timeEnded: timestamp,
+        totalTime: 60 * 60 - totalTime,
+        questionsCompleted: totalQuestions
+      });
+    }
+
+    function updateProgressBar() {
+      const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
+    }
+
+    function showLevelUpMessage(message) {
+      const msgEl = document.getElementById("levelUpMessage");
+      msgEl.textContent = message;
+      msgEl.style.display = "block";
+      setTimeout(() => { msgEl.style.display = "none"; }, 3000);
+    }
+
+    function checkForBadges() {
+      const badgeContainer = document.getElementById("badgeArea");
+      badgeContainer.innerHTML = "";
+      if (score >= 50) badgeContainer.innerHTML += `<span class="badge starter">Starter</span>`;
+      if (score >= 150) badgeContainer.innerHTML += `<span class="badge bronze">Bronze</span>`;
+      if (score >= 250) badgeContainer.innerHTML += `<span class="badge silver">Silver</span>`;
+      if (score >= 350) badgeContainer.innerHTML += `<span class="badge gold">Gold</span>`;
+      if (score >= 500) badgeContainer.innerHTML += `<span class="badge platinum">Platinum</span>`;
+      if (score === totalQuestions * 10) badgeContainer.innerHTML += `<span class="badge diamond">Diamond</span>`;
+    }
+  </script>
+</body>
+</html>
